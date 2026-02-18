@@ -1,0 +1,138 @@
+openapi: 3.0.3
+info:
+  title: HEV Smart Control & Security Interface
+  description: >
+    Specification for the "Connected Hybrid Vehicle" system. 
+    Defines the communication contract between the onboard AI Agent (Llama 3), 
+    the Rust-based CAN Bus Firewall, and external clients (Mobile Apps/Dashboards).
+  version: 2.1.0
+  contact:
+    name: Vehicle Systems Architect
+    email: admin@hev-project.local
+
+servers:
+  - url: http://localhost:5000/api/v1
+    description: Onboard Vehicle Server
+
+tags:
+  - name: Smart-Control
+    description: Neuro-Symbolic AI Decision Making
+  - name: Live-Telemetry
+    description: Real-time Sensors (Speed, SoC, Engine)
+  - name: Cyber-Defense
+    description: Rust IDS & Firewall Reporting
+
+paths:
+
+  /control/intent:
+    post:
+      tags:
+        - Smart-Control
+      summary: Process Driver Voice Command
+      description: >
+        Sends a natural language command to the vehicle's Llama 3 Agent.
+        Returns the optimized driving profile (Mode) and responsiveness parameters.
+      operationId: processIntent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - command
+              properties:
+                command:
+                  type: string
+                  example: "I am late, drive aggressively!"
+                  description: The raw text from speech-to-text conversion.
+      responses:
+        '200':
+          description: AI Decision Executed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIResponse'
+
+
+  /vehicle/telemetry:
+    get:
+      tags:
+        - Live-Telemetry
+      summary: Retrieve Digital Twin Metrics
+      description: >
+        Fetches the latest synchronized data frame from the vehicle simulation loop 
+        (Speed, Battery SoC, Fuel Consumption).
+      responses:
+        '200':
+          description: Real-time Telemetry Data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelemetryData'
+
+
+  /security/status:
+    get:
+      tags:
+        - Cyber-Defense
+      summary: Firewall Health & Intrusion Logs
+      description: >
+        Queries the Rust Intrusion Detection System (IDS) for blocked CAN frames 
+        and current threat level status.
+      responses:
+        '200':
+          description: Security Report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityReport'
+
+components:
+  schemas:
+    AIResponse:
+      type: object
+      properties:
+        selected_mode:
+          type: string
+          enum: [ECO, SPORT, COMFORT]
+          example: "SPORT"
+        throttle_sensitivity:
+          type: number
+          example: 0.85
+        reasoning:
+          type: string
+          example: "Driver indicated urgency; optimizing for performance."
+
+    TelemetryData:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        speed_kmh:
+          type: number
+          example: 62.4
+        battery_soc:
+          type: number
+          description: State of Charge (%)
+          example: 45.2
+        motor_temp:
+          type: number
+          example: 85.1
+
+    SecurityReport:
+      type: object
+      properties:
+        firewall_engine:
+          type: string
+          example: "Rust-v1.4 (Active)"
+        packets_inspected:
+          type: integer
+          example: 15420
+        threats_blocked:
+          type: integer
+          example: 3
+        last_blocked_id:
+          type: string
+          example: "0x7FF"
