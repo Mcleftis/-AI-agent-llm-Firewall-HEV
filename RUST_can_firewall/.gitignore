@@ -70,3 +70,9 @@ docs/_build/
 
 
 .python-version
+# --- THESIS SECRETS & HEAVY FILES ---
+.env
+cloudflared
+cloudflared.exe
+*.zip
+*.bak
